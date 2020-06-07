@@ -13,7 +13,28 @@ def info(path):
         if file_content[i][0] != '':
             file_content[i][0], file_content[i][1] = float(file_content[i][0].replace(',', '.')), float(
                 file_content[i][1].replace(',', '.'))
-        array.append(file_content[i])
+            array.append(file_content[i])
+    return array
+
+
+def lat_lon_to_mer(array):
+    a = 6378137.0
+    b = 6356752.3142
+    for i in range(len(array)):
+        lat = array[i][0]
+        long = array[i][1]
+        if lat > 89.5:
+            lat = 89.5
+        if lat < -89.5:
+            lat = -89.5
+        r_lat = math.radians(lat)
+        r_long = math.radians(long)
+        f = (a - b) / a
+        e = math.sqrt(2 * f - f ** 2)
+        x = a * r_long
+        y = a * math.log(
+            math.tan(math.pi / 4 + r_lat / 2) * ((1 - e * math.sin(r_lat)) / (1 + e * math.sin(r_lat))) ** (e / 2))
+        array[i][1], array[i][0] = x, y
     return array
 
 
@@ -38,5 +59,4 @@ def read_txt(path):
     return array
 
 
-write_new_cords(info('ukraine_poi.csv'))
-print(read_txt('mercator_coords.txt'))
+write_new_cords(lat_lon_to_mer(info('ukraine_poi.csv')))
